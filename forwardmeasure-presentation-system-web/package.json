@@ -1,0 +1,20 @@
+{
+  "name": "@forwardmeasure/presentation-system",
+  "version": "1.1.0",
+  "description": "Shared tokens, component styles, fonts and theme logic for every ForwardMeasure web app, built from the Kriyagentic design system.",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "devDependencies": {
+    "@fontsource/didact-gothic": "5.2.6",
+    "@fontsource/ibm-plex-mono": "5.2.6",
+    "@fontsource/roboto": "5.2.8",
+    "jsdom": "26.1.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
+}
