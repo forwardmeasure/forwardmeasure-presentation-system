@@ -58,6 +58,19 @@
   <modules>
     <module>forwardmeasure-presentation-system-web</module>
   </modules>
+    <dependencyManagement>
+        <dependencies>
+            <!-- No framework module in this repo: every module is framework-neutral and takes its
+                 third-party versions from the platform libraries BOM. -->
+            <dependency>
+                <groupId>com.forwardmeasure.platform</groupId>
+                <artifactId>forwardmeasure-platform-libraries-bom</artifactId>
+                <version>${forwardmeasure.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
   <build>
     <plugins>
       <plugin>
