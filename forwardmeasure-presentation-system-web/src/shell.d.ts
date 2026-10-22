@@ -66,3 +66,13 @@ export type ThemedImageProps = ThemedImageSource & {
 
 /** A brand image (logo, symbol, mark) in the version that matches the active theme. */
 export declare function ThemedImage(props: ThemedImageProps): ReactElement;
+
+/**
+ * Reloads the page, once a minute at most, when a part of the app it loads on demand is gone from
+ * the server - a tab opened before a deploy asking for the old build's files. Call once, at start.
+ */
+export declare function reloadOnStaleBundle(
+  target?: Window,
+  storage?: Pick<Storage, "getItem" | "setItem">,
+  now?: () => number,
+): void;

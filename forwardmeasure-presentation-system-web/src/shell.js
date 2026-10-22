@@ -306,3 +306,25 @@ export function TopBar({ platform, product, logo, sections, current, onNavigate,
   );
 }
 
+
+const STALE_BUNDLE_RELOAD = "kg-stale-bundle-reload";
+
+/**
+ * Reloads the page, once, when a part of the app it loads on demand is gone from the server: a tab
+ * opened before a deploy asks for the old build's hashed files ("Unable to preload CSS ..."), and
+ * the reload fetches the new page and its files. A second failure within a minute is left to the
+ * app (its error boundary shows it), so a real outage never reloads in a loop. Call once, at start.
+ */
+export function reloadOnStaleBundle(target = window, storage = undefined, now = Date.now) {
+  target.addEventListener("vite:preloadError", (event) => {
+    try {
+      const record = storage ?? target.sessionStorage;
+      if (now() - (Number(record.getItem(STALE_BUNDLE_RELOAD)) || 0) < 60_000) return;
+      record.setItem(STALE_BUNDLE_RELOAD, String(now()));
+    } catch {
+      return; // No session storage: without a record a reload could repeat forever.
+    }
+    event.preventDefault();
+    target.location.reload();
+  });
+}

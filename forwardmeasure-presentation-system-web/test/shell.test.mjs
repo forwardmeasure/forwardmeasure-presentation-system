@@ -43,7 +43,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const { act, createElement: h } = await import("react");
 const { createRoot } = await import("react-dom/client");
-const { TopBar, initialsOf } = await import("../src/shell.js");
+const { TopBar, initialsOf, reloadOnStaleBundle } = await import("../src/shell.js");
 const { initTheme } = await import("../src/theme.js");
 
 let container;
@@ -197,4 +197,45 @@ test("a stored Dark choice shows the dark logo even on a light system", () => {
   dom.window.localStorage.setItem("kg-theme", "dark");
   render({ logo: LOGO });
   assert.equal(logoImage().getAttribute("src"), LOGO.dark);
+});
+
+// A tab opened before a deploy asks for the old build's files; Vite reports it as vite:preloadError.
+function staleBundlePage(storage) {
+  const target = new dom.window.EventTarget();
+  const page = { target, reloads: 0, clock: 1_000_000 };
+  target.location = { reload: () => page.reloads++ };
+  reloadOnStaleBundle(target, storage, () => page.clock);
+  page.fail = () => {
+    const event = new dom.window.Event("vite:preloadError", { cancelable: true });
+    target.dispatchEvent(event);
+    return event.defaultPrevented;
+  };
+  return page;
+}
+
+test("a part of the app gone after a deploy reloads the page once, never in a loop", () => {
+  const stored = new Map();
+  const page = staleBundlePage({
+    getItem: (key) => stored.get(key) ?? null,
+    setItem: (key, value) => stored.set(key, value),
+  });
+  assert.equal(page.fail(), true);
+  assert.equal(page.reloads, 1);
+  page.clock += 5_000;
+  assert.equal(page.fail(), false, "a repeat within a minute reaches the app's error handling");
+  assert.equal(page.reloads, 1);
+  page.clock += 60_000;
+  assert.equal(page.fail(), true);
+  assert.equal(page.reloads, 2);
+});
+
+test("without session storage a missing part of the app is left to the app", () => {
+  const page = staleBundlePage({
+    getItem() {
+      throw new Error("storage blocked");
+    },
+    setItem() {},
+  });
+  assert.equal(page.fail(), false);
+  assert.equal(page.reloads, 0);
 });
