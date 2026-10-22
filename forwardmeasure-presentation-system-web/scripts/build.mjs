@@ -16,10 +16,11 @@
  */
 
 // Builds the @forwardmeasure/presentation-system npm package into target/package: the compiled
-// tokens, the component styles, the bundled fonts, the Tailwind theme mapping and the theme logic.
+// tokens, the component styles, the bundled fonts, the Tailwind theme mapping, the theme logic, the
+// shared React components and each brand's assets (brands/<brand>/, apart from the components).
 // No dependencies beyond Node itself; the @fontsource packages are read from node_modules.
 
-import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -127,7 +128,11 @@ export function build(outDir = join(MODULE, "target", "package")) {
   copyFileSync(join(MODULE, "design", "components.css"), join(outDir, "components.css"));
   writeFileSync(join(outDir, "fonts.css"), bundleFonts(join(MODULE, "node_modules"), outDir));
   writeFileSync(join(outDir, "tailwind-theme.css"), compileTailwindTheme(tokens));
-  for (const f of ["theme.js", "theme.d.ts", "shell.js", "shell.d.ts", "index.css"]) copyFileSync(join(MODULE, "src", f), join(outDir, f));
+  for (const f of ["theme.js", "theme.d.ts", "icons.js", "shell.js", "shell.d.ts", "components.js", "components.d.ts", "index.css"]) {
+    copyFileSync(join(MODULE, "src", f), join(outDir, f));
+  }
+  // Brand assets (logos, favicons), one folder per brand: apps import them by path.
+  cpSync(join(MODULE, "brands"), join(outDir, "brands"), { recursive: true });
   copyFileSync(join(MODULE, "design", "brand-book.md"), join(outDir, "brand-book.md"));
   copyFileSync(join(MODULE, "design", "SOURCE.md"), join(outDir, "SOURCE.md"));
 
@@ -159,6 +164,8 @@ export function build(outDir = join(MODULE, "target", "package")) {
           "./tailwind-theme.css": "./tailwind-theme.css",
           "./theme": { types: "./theme.d.ts", default: "./theme.js" },
           "./shell": { types: "./shell.d.ts", default: "./shell.js" },
+          "./components": { types: "./components.d.ts", default: "./components.js" },
+          "./brands/*": "./brands/*",
           "./package.json": "./package.json",
         },
       },

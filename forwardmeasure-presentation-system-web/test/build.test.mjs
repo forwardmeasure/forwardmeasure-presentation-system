@@ -105,7 +105,14 @@ test("the package build bundles every font weight and exports its entry points",
   const pkg = JSON.parse(readFileSync(join(out, "package.json"), "utf8"));
   for (const entry of Object.values(pkg.exports)) {
     const file = typeof entry === "string" ? entry : entry.default;
-    assert.ok(existsSync(join(out, file)), file);
+    // A pattern export (./brands/*) points at a folder of files.
+    assert.ok(existsSync(join(out, file.replace(/\/\*$/, ""))), file);
+  }
+  for (const form of ["mark", "symbol", "lockup"]) {
+    for (const theme of ["light", "dark"]) assert.ok(existsSync(join(out, "brands", "kriyagentic", `kriyagentic-${form}-${theme}.svg`)), `${form} ${theme}`);
+  }
+  for (const icon of ["kriyagentic-favicon.svg", "kriyagentic-favicon-light-32.png", "kriyagentic-favicon-dark-32.png"]) {
+    assert.ok(existsSync(join(out, "brands", "kriyagentic", icon)), icon);
   }
   assert.ok(!("devDependencies" in pkg) && !("dependencies" in pkg), "the built package needs nothing at install time");
   assert.deepEqual(pkg.peerDependencies, { react: ">=18" }, "the shell uses the app's own React");

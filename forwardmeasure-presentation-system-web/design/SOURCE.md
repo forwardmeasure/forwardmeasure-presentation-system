@@ -6,8 +6,8 @@ edited in claude.ai. Don't edit these files by hand: change the design system, t
 | | |
 |---|---|
 | Design system | https://claude.ai/artifact/HmmXyKjATFChiz8VYnpL5i (private to its owner) |
-| Synced version | 26 (version id `1791807180-27db`), last change 2026-10-12T12:12:55Z, "Labels are Title Case (brand book and every component); new Tag component for roles, categories and kinds" |
-| Synced on | 2026-10-12 |
+| Synced version | 32 (version id `1792688425-1b67`), last change 2026-10-22T17:00:21Z, "New OutputActions component (Copy and Download for read-only output); TopBar logo slot takes the brand's symbol" |
+| Synced on | 2026-10-22 |
 
 | File here | File in the design system |
 |---|---|

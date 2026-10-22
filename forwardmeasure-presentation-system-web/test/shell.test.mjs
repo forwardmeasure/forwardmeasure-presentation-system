@@ -21,22 +21,37 @@ import { JSDOM } from "jsdom";
 
 // A real DOM for React to render into.
 const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "https://lux.example/ei/studio/" });
-for (const key of ["window", "document", "HTMLElement", "Node", "KeyboardEvent", "MouseEvent", "PointerEvent", "Event"]) {
+for (const key of ["window", "document", "HTMLElement", "Node", "KeyboardEvent", "MouseEvent", "PointerEvent", "Event", "MutationObserver"]) {
   globalThis[key] = dom.window[key] ?? dom.window.Event;
 }
 globalThis.localStorage = dom.window.localStorage;
 globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
-dom.window.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
+// The operating system's colour scheme, as a hand-written stand-in for matchMedia that tests can flip.
+const system = { dark: false, listeners: new Set() };
+dom.window.matchMedia = () => ({
+  get matches() {
+    return system.dark;
+  },
+  addEventListener: (_type, listener) => system.listeners.add(listener),
+  removeEventListener: (_type, listener) => system.listeners.delete(listener),
+});
+function setSystemDark(dark) {
+  system.dark = dark;
+  for (const listener of [...system.listeners]) listener({ matches: dark });
+}
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const { act, createElement: h } = await import("react");
 const { createRoot } = await import("react-dom/client");
 const { TopBar, initialsOf } = await import("../src/shell.js");
+const { initTheme } = await import("../src/theme.js");
 
 let container;
 let root;
 
 beforeEach(() => {
+  system.dark = false;
+  system.listeners.clear();
   dom.window.localStorage.clear();
   document.documentElement.removeAttribute("data-theme");
   container = document.createElement("div");
@@ -126,4 +141,60 @@ test("sign out lives in the account menu, which Escape closes", () => {
   click(account);
   click(byText("Sign Out", '[role="menuitem"]'));
   assert.equal(calls.signedOut, 1);
+});
+
+const LOGO = { light: "/brand/symbol-light.svg", dark: "/brand/symbol-dark.svg" };
+const logoImage = () => container.querySelector(".kg-topbar__logo img");
+// MutationObserver callbacks run as microtasks; let them run inside act.
+const settle = () => act(async () => {});
+
+test("without a logo the slot is not rendered at all", () => {
+  render();
+  assert.equal(container.querySelector(".kg-topbar__logo"), null);
+  assert.equal(container.querySelector(".kg-topbar__brand img"), null);
+  assert.equal(container.querySelector(".kg-topbar__platform").textContent, "kriyagentic", "the platform name stays as text");
+});
+
+test("the logo is a decorative image, 24px high, beside the platform name", () => {
+  render({ logo: LOGO });
+  const image = logoImage();
+  assert.ok(image, "the logo slot holds an image");
+  assert.equal(image.getAttribute("alt"), "", "decorative: the platform name carries the meaning");
+  assert.equal(image.getAttribute("height"), "24");
+  assert.equal(image.parentElement.nextElementSibling.className, "kg-topbar__platform");
+  assert.equal(container.querySelector(".kg-topbar__platform").textContent, "kriyagentic");
+});
+
+test("the logo follows the theme chosen in the toggle", async () => {
+  render({ logo: LOGO });
+  assert.equal(logoImage().getAttribute("src"), LOGO.light, "Match System on a light system shows the light version");
+  click(container.querySelector('[role="radio"][aria-label="Dark"]'));
+  await settle();
+  assert.equal(logoImage().getAttribute("src"), LOGO.dark);
+  click(container.querySelector('[role="radio"][aria-label="Light"]'));
+  await settle();
+  assert.equal(logoImage().getAttribute("src"), LOGO.light);
+});
+
+test("with Match System the logo follows the operating system, before and after the theme starts", async () => {
+  setSystemDark(true);
+  render({ logo: LOGO });
+  assert.equal(logoImage().getAttribute("src"), LOGO.dark, "no data-theme yet: the system's dark scheme decides");
+  const stop = initTheme();
+  try {
+    await settle();
+    assert.equal(document.documentElement.getAttribute("data-theme"), "dark");
+    act(() => setSystemDark(false));
+    await settle();
+    assert.equal(document.documentElement.getAttribute("data-theme"), "light");
+    assert.equal(logoImage().getAttribute("src"), LOGO.light);
+  } finally {
+    stop();
+  }
+});
+
+test("a stored Dark choice shows the dark logo even on a light system", () => {
+  dom.window.localStorage.setItem("kg-theme", "dark");
+  render({ logo: LOGO });
+  assert.equal(logoImage().getAttribute("src"), LOGO.dark);
 });

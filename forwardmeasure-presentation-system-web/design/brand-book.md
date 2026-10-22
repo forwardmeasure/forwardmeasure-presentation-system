@@ -109,7 +109,7 @@ Three palettes carry the brand outside the product: covers, decks, marketing pag
 
 ## Interface components
 
-Every app on the platform (Entity Intelligence Studio, OpenWorkflow Studio, the Operations dashboard and Agent OS Studio) builds its screens from these components, so the apps look and behave as one product. They were added beyond the evidence components because all four apps draw the same frame and controls: the app shell (TopBar, ThemeToggle), actions (Button, IconButton), forms (Field, TextField, TextArea, Select, SearchableSelect, Checkbox, Radio, Switch), data (Table, Pagination, Card, KeyValueList, IdentifierValue, Tabs, Tag), feedback (OperationalStatus, Banner, Toast, Loading, EmptyState, ErrorState) and overlays (Dialog, Menu, Tooltip, Drawer).
+Every app on the platform (Entity Intelligence Studio, OpenWorkflow Studio, the Operations dashboard and Agent OS Studio) builds its screens from these components, so the apps look and behave as one product. They were added beyond the evidence components because all four apps draw the same frame and controls: the app shell (TopBar, ThemeToggle), actions (Button, IconButton, OutputActions), forms (Field, TextField, TextArea, Select, SearchableSelect, Checkbox, Radio, Switch), data (Table, Pagination, Card, KeyValueList, IdentifierValue, Tabs, Tag), feedback (OperationalStatus, Banner, Toast, Loading, EmptyState, ErrorState) and overlays (Dialog, Menu, Tooltip, Drawer).
 
 - Each component is plain HTML with `kg-` classes from this system's stylesheet, so React, MUI-based and plain pages all use the same markup. Behaviour (keyboard handling, focus, opening and closing) belongs to the app and follows the ARIA pattern each component's guidelines name.
 - Every app has one TopBar, offers both themes through ThemeToggle ("Match System" by default), and signs out from the account menu.
@@ -118,16 +118,23 @@ Every app on the platform (Entity Intelligence Studio, OpenWorkflow Studio, the 
 - Roles, categories, keywords and source kinds use Tag: one neutral look, never a state or an evidence status.
 - System and workflow states use OperationalStatus (pending, running and cancelled are info; succeeded is success; failed is danger; degraded is warning) in every app. How a claim is known is a StatusBadge; the two never stand in for each other.
 - Errors from an API show its problem in plain words with the correlation ID, never a stack trace (ErrorState, Banner).
+- Every read-only output (JSON, logs, error details, a Problem's detail, raw task or extraction data) carries OutputActions: Copy and Download, in the same place and the same words in every app.
 
 **Ready for more than one brand.** Brands other than Kriyagentic will come later; build so that adding one changes tokens and names, not components.
 
 - Components and app screens use role tokens only (`surface*`, `ink*`, `line*`, `accent*`, `secondary*`, `focus`, the status, band and safety tokens, `chart-*`, `seq-*`, `div-*`, `conf-*`). Never reference a ramp step (`slate-*`, `sienna-*`), a brand palette or a `wada-*` colour in a component or screen.
-- Never write the platform name, product name, logo or a brand colour into a component. Pass names in (the TopBar takes them as content) and keep the logo slot empty until there is a logo.
+- Never write the platform name, product name, logo or a brand colour into a component. Pass names and the logo in (the TopBar takes them as content); each brand keeps its logo files in its own Logos group.
 - Set type only through `--font-display`, `--font-sans` and `--font-mono` and the type styles, never a family name.
 
 ## Iconography and marks
 
-The logo is being reworked; there are no logo files in the system yet. Until there are, set the name "Kriyagentic" in Roboto 500 (`title` or `display`) in `ink` wherever a mark is needed.
+The Kriyagentic logo is a planet inside a ring, in the colours of combination 243: an Ivory Buff planet (paper in the dark theme), a Raw Sienna ring and the name in Slate Color. The name is set in Roboto 500 and converted to outlines, so the files need no font. The ring is one continuous ellipse: it passes behind the planet at the top and in front of it at the bottom. In the mark, its near side runs behind the name, crossing the lower half of the letters, and a hairline in the planet's colour keeps each letter whole where it crosses. In the symbol and the lockup, the ring stays clear of the lettering so it holds at small sizes. The files are in the Logos group, each in a light and a dark version:
+
+- **Mark** (`kriyagentic-mark-*`): the name across the planet. Use it on covers, the sign-in page, splash screens and documents, at 96px or larger.
+- **Symbol** (`kriyagentic-symbol-*`): the planet, the ring and a single "k". Use it for favicons, app icons and avatars, and in the TopBar's logo slot, down to 16px.
+- **Lockup** (`kriyagentic-lockup-*`): the symbol followed by the name. Use it in page headers, decks and documents, at 24px high or more. It already contains the name, so never place it next to the name set as text.
+
+Use the light files on light grounds (`surface`, paper) and the dark files on dark grounds (the dark theme's `surface`, charcoal). Keep clear space of at least half the planet's diameter around every form. Never recolour, outline, stretch, rotate or re-set the logo, and never add a tagline to it. The name is lowercase inside the logo; in copy it is always "Kriyagentic".
 
 Icons come from **Lucide** (lucide.dev, ISC licence; text in `licenses/`), the one icon set for every app: simple outlines at a 1.5px stroke in `ink` or `ink-muted`, 16px beside text and in controls, 20px in larger controls, 32px in empty and error states. React apps use `lucide-react` with `strokeWidth={1.5}`; anything else inlines the SVG with the `kg-icon` class. A lock marks sensitivity, a check marks human verification and chosen options, `circle-alert` an error, `triangle-alert` a warning, `circle-check` success, `info` a notice and `loader-circle` work in progress; the Icons card shows the core set by name. Icons are decorative (`aria-hidden`): a word or an `aria-label` always carries the meaning. No emoji and no second icon set.
 

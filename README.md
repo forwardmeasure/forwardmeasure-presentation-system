@@ -22,8 +22,21 @@ What an app gets from `@forwardmeasure/presentation-system`:
 | `.../fonts.css` | Roboto, Didact Gothic and IBM Plex Mono, bundled with every script subset |
 | `.../tailwind-theme.css` | For Tailwind v4 apps: utility colours and fonts mapped onto the role tokens |
 | `.../theme` | Light / dark / match-system logic: `initTheme`, `saveThemePreference`, `storedThemePreference` |
+| `.../shell` | The app shell in React: `TopBar` (with its optional `logo`, the brand's symbol), `ThemeToggle`, `AccountMenu`, and `ThemedImage` for a brand image that follows the active theme |
+| `.../components` | Shared React components: `OutputActions`, Copy and Download for any read-only output |
+| `.../brands/<brand>/<file>` | Each brand's logo files and favicons, kept apart from the components (today `brands/kriyagentic/`) |
 
 Icons are Lucide: React apps depend on `lucide-react` themselves and draw icons at `strokeWidth={1.5}`.
+
+### Brand assets
+
+`forwardmeasure-presentation-system-web/brands/kriyagentic/` holds the Kriyagentic logo as the design
+system's Logos group has it (mark, symbol and lockup, each light and dark, the name outlined), with a
+licence header added, plus the favicons made from the symbol: `kriyagentic-favicon.svg` (switches
+itself with `prefers-color-scheme`) and 32px PNGs for light and dark. Components never name a brand:
+an app imports the files it needs by path, for example
+`@forwardmeasure/presentation-system/brands/kriyagentic/kriyagentic-symbol-light.svg`, and passes them
+in (`TopBar`'s `logo`). A further brand adds its own folder beside this one.
 The design system's brand book (`brand-book.md`, shipped in the package) is the usage guide.
 
 ### Using it in a web app

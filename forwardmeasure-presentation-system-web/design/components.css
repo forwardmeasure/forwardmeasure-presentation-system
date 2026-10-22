@@ -229,6 +229,12 @@
 .kg-id__text { overflow:hidden; text-overflow:ellipsis; }
 .kg-id__copied { padding-right:var(--space-2); font-family:var(--font-sans); font-size:12px; line-height:16px; letter-spacing:.02em; color:var(--ink-muted); }
 
+/* ---------- OutputActions ---------- */
+.kg-output-actions { display:inline-flex; flex:none; align-items:center; gap:var(--space-1); vertical-align:middle; }
+.kg-output-actions__status { font-family:var(--font-sans); font-size:12px; line-height:16px; letter-spacing:.02em; color:var(--ink-muted); white-space:nowrap; }
+.kg-output-head { display:flex; align-items:center; justify-content:space-between; gap:var(--space-3); min-width:0; }
+.kg-output-head > :first-child { min-width:0; }
+
 /* ---------- Tag ---------- */
 .kg-tags { display:flex; flex-wrap:wrap; gap:var(--space-2); margin:0; padding:0; list-style:none; }
 .kg-tag { display:inline-flex; align-items:center; gap:var(--space-1); box-sizing:border-box; max-width:100%; padding:1px var(--space-2); border:1px solid var(--line); border-radius:var(--radius-sm);

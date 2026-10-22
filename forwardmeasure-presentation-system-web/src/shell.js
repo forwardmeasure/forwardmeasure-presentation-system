@@ -16,39 +16,63 @@
  */
 
 // The app shell every ForwardMeasure app shares, as React components drawn with the kg- classes:
-// TopBar (platform, product, sections or section groups, tenant, theme, account), ThemeToggle and
-// AccountMenu. Plain JavaScript with the app's own React (a peer dependency), so no build step.
-// Icons are Lucide 0.468.0 outlines, inlined.
+// TopBar (logo, platform, product, sections or section groups, tenant, theme, account),
+// ThemeToggle and AccountMenu, plus ThemedImage for a brand image that follows the active theme.
+// Plain JavaScript with the app's own React (a peer dependency), so no build step. Icons are
+// Lucide 0.468.0 outlines, inlined (icons.js).
 
 import { createElement as h, useEffect, useRef, useState } from "react";
-import { saveThemePreference, storedThemePreference } from "./theme.js";
+import { Icon } from "./icons.js";
+import { resolveTheme, saveThemePreference, storedThemePreference } from "./theme.js";
 
-const ICONS = {
-  sun: [["circle", { cx: 12, cy: 12, r: 4 }], ["path", { d: "M12 2v2" }], ["path", { d: "M12 20v2" }], ["path", { d: "m4.93 4.93 1.41 1.41" }], ["path", { d: "m17.66 17.66 1.41 1.41" }], ["path", { d: "M2 12h2" }], ["path", { d: "M20 12h2" }], ["path", { d: "m6.34 17.66-1.41 1.41" }], ["path", { d: "m19.07 4.93-1.41 1.41" }]],
-  moon: [["path", { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" }]],
-  monitor: [["rect", { width: 20, height: 14, x: 2, y: 3, rx: 2 }], ["line", { x1: 8, x2: 16, y1: 21, y2: 21 }], ["line", { x1: 12, x2: 12, y1: 17, y2: 21 }]],
-  chevronDown: [["path", { d: "m6 9 6 6 6-6" }]],
-  logOut: [["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" }], ["polyline", { points: "16 17 21 12 16 7" }], ["line", { x1: 21, x2: 9, y1: 12, y2: 12 }]],
-  check: [["path", { d: "M20 6 9 17l-5-5" }]],
-};
+/** The theme the page shows now: data-theme on <html>, or the stored choice before it is set. */
+function activeTheme() {
+  if (typeof document === "undefined") return "light";
+  const attribute = document.documentElement.getAttribute("data-theme");
+  if (attribute === "light" || attribute === "dark") return attribute;
+  const systemDark =
+    typeof window !== "undefined" && typeof window.matchMedia === "function"
+      ? Boolean(window.matchMedia("(prefers-color-scheme: dark)").matches)
+      : false;
+  return resolveTheme(storedThemePreference(), systemDark);
+}
 
-function Icon({ name, style }) {
-  return h(
-    "svg",
-    {
-      className: "kg-icon",
-      viewBox: "0 0 24 24",
-      fill: "none",
-      stroke: "currentColor",
-      strokeWidth: 1.5,
-      strokeLinecap: "round",
-      strokeLinejoin: "round",
-      "aria-hidden": true,
-      focusable: "false",
-      style,
-    },
-    ICONS[name].map(([tag, attrs], i) => h(tag, { key: i, ...attrs })),
-  );
+/**
+ * The active colour theme, kept current: it follows data-theme on <html> (which ThemeToggle and
+ * initTheme set, including while the choice is "Match System" and the operating system changes)
+ * and, before data-theme is set, the operating system itself.
+ */
+export function useActiveTheme() {
+  const [theme, setTheme] = useState(activeTheme);
+  useEffect(() => {
+    const update = () => setTheme(activeTheme());
+    update();
+    const observer = typeof MutationObserver === "function" ? new MutationObserver(update) : undefined;
+    observer?.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    const query = typeof window.matchMedia === "function" ? window.matchMedia("(prefers-color-scheme: dark)") : undefined;
+    query?.addEventListener?.("change", update);
+    return () => {
+      observer?.disconnect();
+      query?.removeEventListener?.("change", update);
+    };
+  }, []);
+  return theme;
+}
+
+/**
+ * A brand image in its light or dark version, whichever matches the active theme. Decorative by
+ * default (empty alt): the words beside it carry the meaning.
+ */
+export function ThemedImage({ light, dark, height, alt = "", className }) {
+  const theme = useActiveTheme();
+  return h("img", {
+    src: theme === "dark" ? dark : light,
+    alt,
+    height,
+    className,
+    "data-theme-variant": theme,
+    style: { display: "block", height, width: "auto" },
+  });
 }
 
 /** Up to two initials: one per word for several words, the first two letters of a single word. */
@@ -241,14 +265,15 @@ function SectionGroup({ group, current, onNavigate }) {
   );
 }
 
-export function TopBar({ platform, product, sections, current, onNavigate, tenant, person, onThemeChange, onSignOut }) {
+export function TopBar({ platform, product, logo, sections, current, onNavigate, tenant, person, onThemeChange, onSignOut }) {
   return h(
     "header",
     { className: "kg-topbar" },
     h(
       "div",
       { className: "kg-topbar__brand" },
-      h("span", { className: "kg-topbar__logo" }),
+      // The brand's symbol (never the lockup: the platform name is already set beside it as text).
+      logo ? h("span", { className: "kg-topbar__logo" }, h(ThemedImage, { light: logo.light, dark: logo.dark, height: 24 })) : null,
       h("span", { className: "kg-topbar__platform" }, platform),
       h("span", { className: "kg-topbar__product" }, product),
     ),

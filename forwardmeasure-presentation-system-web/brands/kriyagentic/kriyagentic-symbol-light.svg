@@ -1,0 +1,24 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements. See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License. You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Kriyagentic">
+  <title>Kriyagentic</title>
+  <defs><clipPath id="front-symbol-light"><rect x="-144.00" y="0" width="288.00" height="62.00"/></clipPath></defs>
+  <g transform="translate(128.00 128.00) rotate(-16)"><ellipse rx="122.00" ry="40.00" fill="none" stroke="#b85e00" stroke-width="11.00"/></g>
+  <circle cx="128.00" cy="128.00" r="86.00" fill="#ebd999"/>
+  <path d="M119.845703125 73.0V148.0H108.029296875V73.0ZM152.658203125 95.16796875 129.66015625 120.65625 117.0625 133.546875 113.986328125 123.5859375 123.5078125 111.818359375 138.44921875 95.16796875ZM140.98828125 148.0 123.849609375 123.1953125 131.271484375 114.943359375 154.611328125 148.0Z" fill="#1b3644"/>
+  <g transform="translate(128.00 128.00) rotate(-16)"><ellipse rx="122.00" ry="40.00" fill="none" stroke="#b85e00" stroke-width="11.00" clip-path="url(#front-symbol-light)"/></g>
+</svg>
